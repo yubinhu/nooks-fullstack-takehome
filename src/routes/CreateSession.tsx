@@ -14,7 +14,7 @@ const CreateSession: React.FC = () => {
     // -- Temp marker start
     console.log("creating session with url: ", newUrl);
     const socket = io("http://localhost:8080");
-    socket.emit("play", newUrl);
+    socket.emit("new-session", sessionId, newUrl);
     // -- Temp marker end
     
     setNewUrl("");

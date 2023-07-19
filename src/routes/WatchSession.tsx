@@ -15,8 +15,10 @@ const WatchSession: React.FC = () => {
 
   // -- Temp marker start
   const socket = io("http://localhost:8080");
-  socket.on("play", (url: string) => {
-    console.log("got url from server: ", url);
+  socket.emit("join-session", sessionId);
+  socket.on("welcome", (sessionUrl: string, status: JSON) => {
+    console.log("Welcomed by the server: ", sessionUrl, status);
+    setUrl(sessionUrl);
   });
   // -- Temp marker end
 
