@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Box, Button, TextField, Tooltip } from "@mui/material";
 import LinkIcon from "@mui/icons-material/Link";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { io } from "socket.io-client";
 
 const WatchSession: React.FC = () => {
   const { sessionId } = useParams();
@@ -11,6 +12,13 @@ const WatchSession: React.FC = () => {
   const [url, setUrl] = useState<string | null>(null);
 
   const [linkCopied, setLinkCopied] = useState(false);
+
+  // -- Temp marker start
+  const socket = io("http://localhost:8080");
+  socket.on("play", (url: string) => {
+    console.log("got url from server: ", url);
+  });
+  // -- Temp marker end
 
   useEffect(() => {
     // load video by session ID -- right now we just hardcode a constant video but you should be able to load the video associated with the session

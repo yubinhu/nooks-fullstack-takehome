@@ -2,14 +2,22 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Box, Button, TextField } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
+import { io } from "socket.io-client";
 
 const CreateSession: React.FC = () => {
   const navigate = useNavigate();
   const [newUrl, setNewUrl] = useState("");
 
   const createSession = async () => {
-    setNewUrl("");
     const sessionId = uuidv4();
+
+    // -- Temp marker start
+    console.log("creating session with url: ", newUrl);
+    const socket = io("http://localhost:8080");
+    socket.emit("play", newUrl);
+    // -- Temp marker end
+    
+    setNewUrl("");
     navigate(`/watch/${sessionId}`);
   };
 
