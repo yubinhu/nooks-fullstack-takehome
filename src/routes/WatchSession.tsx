@@ -13,16 +13,14 @@ const WatchSession: React.FC = () => {
 
   const [linkCopied, setLinkCopied] = useState(false);
 
-  // -- Temp marker start
-  const socket = io("http://localhost:8080");
-  socket.emit("join-session", sessionId);
-  socket.on("welcome", (sessionUrl: string, status: JSON) => {
-    console.log("Welcomed by the server: ", sessionUrl, status);
-    setUrl(sessionUrl);
-  });
-  // -- Temp marker end
-
   useEffect(() => {
+    const socket = io("http://localhost:8080");
+    socket.emit("join-session", sessionId);
+    socket.on("welcome", (sessionUrl: string, status: JSON) => {
+      console.log("Welcomed by the server: ", sessionUrl, status);
+      setUrl(sessionUrl);
+    });
+
     // load video by session ID -- right now we just hardcode a constant video but you should be able to load the video associated with the session
     setUrl("https://www.youtube.com/watch?v=NX1eKLReSpY");
 
