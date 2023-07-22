@@ -8,12 +8,14 @@ interface VideoPlayerProps {
   hideControls?: boolean;
   socket: Socket;
   sessionId: string;
+  startTime: number;
 }
 
-const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, sessionId}) => {
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, sessionId, startTime}) => {
   const [hasJoined, setHasJoined] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [lastPause, setLastPause] = useState(0); 
   const player = useRef<ReactPlayer>(null);
 
   socket.on("broadcast-play", () => {
@@ -26,8 +28,19 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
     setPaused(true);
   })
 
+  socket.on("broadcast-seek", (seconds: number) => {
+    console.log('seek request received. Current time: ', player.current?.getCurrentTime(), ' seek to: ', seconds, ' difference: ', Math.abs(player.current?.getCurrentTime() as number - seconds));
+    player.current?.seekTo(seconds);
+  });
+
+  socket.on("welcome-request",(callback) => {
+    console.log('welcome request received');
+    callback({'url': url, 'status': player.current?.getCurrentTime()});
+  })
+
   const handleReady = () => {
     setIsReady(true);
+    player.current?.seekTo(startTime);
   };
 
   const handleEnd = () => {
@@ -55,7 +68,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
 
     if (!paused) {
       // this is a seek event
-      handleSeek(player.current?.getCurrentTime() || 0)
+      // console.log('seek event detected - play event when playing: seek to ', player.current?.getCurrentTime() || 0)
+      // socket.emit("broadcast-seek", sessionId, player.current?.getCurrentTime() || 0)
     } else {
       // this is a play event
       socket.emit("broadcast-play", sessionId)
@@ -64,13 +78,15 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
   };
 
   const handlePause = () => {
+    const pauseTime = player.current?.getCurrentTime()
     console.log(
       "User paused video at time: ",
-      player.current?.getCurrentTime()
+      pauseTime
     );
 
     socket.emit("broadcast-pause", sessionId)
     setPaused(true)
+    setLastPause(pauseTime as number)
   };
 
   const handleBuffer = () => {
@@ -84,6 +100,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
     loadedSeconds: number;
   }) => {
     console.log("Video progress: ", state);
+
+    if (paused && state.playedSeconds - lastPause > 0.2) {
+      // this is a seek event
+      console.log('seek event detected - progress event when paused: seek to ', state.playedSeconds)
+      socket.emit("broadcast-seek", sessionId, state.playedSeconds);
+    }
+    // socket.emit("broadcast-progress", sessionId, state);
   };
 
   return (

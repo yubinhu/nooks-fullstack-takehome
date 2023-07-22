@@ -10,6 +10,7 @@ const WatchSession: React.FC = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
   const [url, setUrl] = useState<string | null>(null);
+  const [startTime, setStartTime] = useState<number>(0); // [seconds
   const [socket, setSocket] = useState<Socket | null>(null);
   const BACKEND_URL = "http://localhost:8080";
 
@@ -27,9 +28,10 @@ const WatchSession: React.FC = () => {
     }
     setSocket(newSocket);
     newSocket.emit("join-session", sessionId);
-    newSocket.on("welcome", (sessionUrl: string, status: JSON) => {
+    newSocket.on("welcome", (sessionUrl: string, status: number) => {
       console.log("Welcomed by the server: ", sessionUrl, status);
       setUrl(sessionUrl);
+      setStartTime(status);
     });
 
     // // fallback url
@@ -85,7 +87,7 @@ const WatchSession: React.FC = () => {
             </Button>
           </Tooltip>
         </Box>
-        <VideoPlayer url={url} socket={socket as Socket} sessionId={sessionId as string}/>;
+        <VideoPlayer url={url} socket={socket as Socket} sessionId={sessionId as string} startTime={startTime}/>;
       </>
     );
   }
