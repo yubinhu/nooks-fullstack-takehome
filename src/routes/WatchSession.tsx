@@ -4,25 +4,36 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Box, Button, TextField, Tooltip } from "@mui/material";
 import LinkIcon from "@mui/icons-material/Link";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 
 const WatchSession: React.FC = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
   const [url, setUrl] = useState<string | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const BACKEND_URL = "http://localhost:8080";
 
   const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
-    const socket = io("http://localhost:8080");
-    socket.emit("join-session", sessionId);
-    socket.on("welcome", (sessionUrl: string, status: JSON) => {
+    if (!sessionId) {
+      navigate("/create");
+    }
+
+    var newSocket = io(BACKEND_URL);
+    while (!newSocket) {
+      console.log("Error! Socket creation failed, retrying");
+      newSocket = io(BACKEND_URL);
+    }
+    setSocket(newSocket);
+    newSocket.emit("join-session", sessionId);
+    newSocket.on("welcome", (sessionUrl: string, status: JSON) => {
       console.log("Welcomed by the server: ", sessionUrl, status);
       setUrl(sessionUrl);
     });
 
-    // load video by session ID -- right now we just hardcode a constant video but you should be able to load the video associated with the session
-    setUrl("https://www.youtube.com/watch?v=NX1eKLReSpY");
+    // // fallback url
+    // setUrl("https://www.youtube.com/watch?v=NX1eKLReSpY");
 
     // if session ID doesn't exist, you'll probably want to redirect back to the home / create session page
   }, [sessionId]);
@@ -74,7 +85,7 @@ const WatchSession: React.FC = () => {
             </Button>
           </Tooltip>
         </Box>
-        <VideoPlayer url={url} />;
+        <VideoPlayer url={url} socket={socket as Socket} sessionId={sessionId as string}/>;
       </>
     );
   }

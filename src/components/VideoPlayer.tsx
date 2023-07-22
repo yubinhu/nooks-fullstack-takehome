@@ -1,16 +1,30 @@
 import { Box, Button } from "@mui/material";
 import React, { useRef, useState } from "react";
 import ReactPlayer from "react-player";
+import { Socket } from "socket.io-client";
 
 interface VideoPlayerProps {
   url: string;
   hideControls?: boolean;
+  socket: Socket;
+  sessionId: string;
 }
 
-const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls }) => {
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, sessionId}) => {
   const [hasJoined, setHasJoined] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [paused, setPaused] = useState(false);
   const player = useRef<ReactPlayer>(null);
+
+  socket.on("broadcast-play", () => {
+    console.log('play signal received');
+    setPaused(false);
+  })
+
+  socket.on("broadcast-pause", () => {
+    console.log('play signal received');
+    setPaused(true);
+  })
 
   const handleReady = () => {
     setIsReady(true);
@@ -38,6 +52,15 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls }) => {
       "User played video at time: ",
       player.current?.getCurrentTime()
     );
+
+    if (!paused) {
+      // this is a seek event
+      handleSeek(player.current?.getCurrentTime() || 0)
+    } else {
+      // this is a play event
+      socket.emit("broadcast-play", sessionId)
+      setPaused(false)
+    }
   };
 
   const handlePause = () => {
@@ -45,6 +68,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls }) => {
       "User paused video at time: ",
       player.current?.getCurrentTime()
     );
+
+    socket.emit("broadcast-pause", sessionId)
+    setPaused(true)
   };
 
   const handleBuffer = () => {
@@ -78,11 +104,11 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls }) => {
         <ReactPlayer
           ref={player}
           url={url}
-          playing={hasJoined}
+          playing={hasJoined && !paused}
           controls={!hideControls}
           onReady={handleReady}
           onEnded={handleEnd}
-          onSeek={handleSeek}
+          // onSeek={handleSeek}
           onPlay={handlePlay}
           onPause={handlePause}
           onBuffer={handleBuffer}
