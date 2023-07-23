@@ -14,11 +14,9 @@ const CreateSession: React.FC = () => {
   const createSession = async () => {
     const sessionId = uuidv4();
 
-    // -- Temp marker start
     console.log("creating session with url: ", newUrl);
     const socket = io(BACKEND_URL);
     socket.emit("new-session", sessionId, newUrl);
-    // -- Temp marker end
     
     setNewUrl("");
     navigate(`/watch/${sessionId}`);
