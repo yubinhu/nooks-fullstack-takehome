@@ -25,7 +25,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<CreateSession />} />
           <Route path="/create" element={<CreateSession />} />
-          <Route path="/watch/:sessionId" element={<WatchSession />} />
+          <Route path="/watch/:sessionId" element={<WatchSession/>} />
         </Routes>
       </Box>
     </ThemeProvider>

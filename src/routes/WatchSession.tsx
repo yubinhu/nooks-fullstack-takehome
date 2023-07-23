@@ -5,39 +5,42 @@ import { Box, Button, TextField, Tooltip } from "@mui/material";
 import LinkIcon from "@mui/icons-material/Link";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { io, Socket } from "socket.io-client";
+import { env } from "process";
 
 const WatchSession: React.FC = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
   const [url, setUrl] = useState<string | null>(null);
   const [startTime, setStartTime] = useState<number>(0); // [seconds
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const BACKEND_URL = "http://localhost:8080";
 
   const [linkCopied, setLinkCopied] = useState(false);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
+    // if session ID doesn't exist, you'll probably want to redirect back to the home / create session page
     if (!sessionId) {
       navigate("/create");
     }
-
-    var newSocket = io(BACKEND_URL);
-    while (!newSocket) {
-      console.log("Error! Socket creation failed, retrying");
-      newSocket = io(BACKEND_URL);
-    }
+    
+    const BACKEND_URL = env.BACKEND_URL || "http://localhost:8080";
+    const newSocket = io(BACKEND_URL);
     setSocket(newSocket);
     newSocket.emit("join-session", sessionId);
+
     newSocket.on("welcome", (sessionUrl: string, status: number) => {
+      console.log("Welcomed by a user: ", sessionUrl, status);
+      setUrl(sessionUrl);
+      setStartTime(status);
+    });
+    
+    newSocket.on("server-welcome", (sessionUrl: string, status: number) => {
       console.log("Welcomed by the server: ", sessionUrl, status);
       setUrl(sessionUrl);
       setStartTime(status);
     });
-
-    // // fallback url
-    // setUrl("https://www.youtube.com/watch?v=NX1eKLReSpY");
-
-    // if session ID doesn't exist, you'll probably want to redirect back to the home / create session page
+    return () => {
+      newSocket.disconnect();
+    };
   }, [sessionId]);
 
   if (!!url) {
