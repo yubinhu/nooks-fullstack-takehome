@@ -5,7 +5,7 @@ import { Box, Button, TextField, Tooltip } from "@mui/material";
 import LinkIcon from "@mui/icons-material/Link";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { io, Socket } from "socket.io-client";
-import { env } from "process";
+import { BACKEND_URL } from "../constants";
 
 const WatchSession: React.FC = () => {
   const { sessionId } = useParams();
@@ -22,7 +22,6 @@ const WatchSession: React.FC = () => {
       navigate("/create");
     }
     
-    const BACKEND_URL = env.BACKEND_URL || "http://localhost:8080";
     const newSocket = io(BACKEND_URL);
     setSocket(newSocket);
     newSocket.emit("join-session", sessionId);

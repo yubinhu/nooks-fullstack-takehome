@@ -2,14 +2,13 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Box, Button, TextField } from "@mui/material";
 import { io } from "socket.io-client";
-import { env } from "process";
+import { BACKEND_URL } from "../constants";
 
 
 const CreateSession: React.FC = () => {
   const navigate = useNavigate();
   const [newUrl, setNewUrl] = useState("");
   const { sessionId } = useParams();
-  const BACKEND_URL = env.BACKEND_URL || "http://localhost:8080";
 
   const createSession = async () => {
     console.log("changing session", sessionId, "to new url:", newUrl);
