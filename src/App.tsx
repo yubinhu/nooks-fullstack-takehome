@@ -2,6 +2,7 @@ import { Box, createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import { Routes, Route } from "react-router-dom";
 import WatchSession from "./routes/WatchSession";
 import CreateSession from "./routes/CreateSession";
+import ChangeVideo from "./routes/ChangeVideo";
 
 const darkTheme = createTheme({
   palette: {
@@ -26,6 +27,7 @@ const App = () => {
           <Route path="/" element={<CreateSession />} />
           <Route path="/create" element={<CreateSession />} />
           <Route path="/watch/:sessionId" element={<WatchSession/>} />
+          <Route path="/recreate/:sessionId" element={<ChangeVideo/>} />
         </Routes>
       </Box>
     </ThemeProvider>

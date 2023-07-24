@@ -20,6 +20,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
   
   useEffect(() => {
     socket.off("welcome");
+    socket.off("server-welcome");
+
     socket.on("broadcast-play", () => {
       console.log('play signal received');
       setPaused(false);
@@ -45,6 +47,11 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
   const handleReady = () => {
     setIsReady(true);
     player.current?.seekTo(startTime);
+  };
+
+  const handleWatchSession = () => {
+    setHasJoined(true);
+    // TODO: ask for a sync here
   };
 
   const handleEnd = () => {
@@ -145,7 +152,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
         <Button
           variant="contained"
           size="large"
-          onClick={() => setHasJoined(true)}
+          onClick={handleWatchSession}
         >
           Watch Session
         </Button>

@@ -32,16 +32,22 @@ const WatchSession: React.FC = () => {
       setUrl(sessionUrl);
       setStartTime(status);
     });
-    
+
     newSocket.on("server-welcome", (sessionUrl: string, status: number) => {
       console.log("Welcomed by the server: ", sessionUrl, status);
       setUrl(sessionUrl);
       setStartTime(status);
     });
+
+    newSocket.on("change-video", (sessionId, newUrl) => {
+      console.log("changing video to: ", newUrl);
+      setUrl(newUrl);
+    });
+
     return () => {
       newSocket.disconnect();
     };
-  }, [sessionId]);
+  }, [sessionId, url]);
 
   if (!!url) {
     return (
@@ -81,7 +87,7 @@ const WatchSession: React.FC = () => {
           <Tooltip title="Create new watch party">
             <Button
               onClick={() => {
-                navigate("/create");
+                navigate(`/recreate/${sessionId}`);
               }}
               variant="contained"
               sx={{ whiteSpace: "nowrap", minWidth: "max-content" }}
