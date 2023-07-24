@@ -72,18 +72,18 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
     console.log("Video ended");
   };
 
-  const handleSeek = (seconds: number) => {
-    // Ideally, the seek event would be fired whenever the user moves the built in Youtube video slider to a new timestamp.
-    // However, the youtube API no longer supports seek events (https://github.com/cookpete/react-player/issues/356), so this no longer works
+  // const handleSeek = (seconds: number) => {
+  //   // Ideally, the seek event would be fired whenever the user moves the built in Youtube video slider to a new timestamp.
+  //   // However, the youtube API no longer supports seek events (https://github.com/cookpete/react-player/issues/356), so this no longer works
 
-    // You'll need to find a different way to detect seeks (or just write your own seek slider and replace the built in Youtube one.)
-    // Note that when you move the slider, you still get play, pause, buffer, and progress events, can you use those?
+  //   // You'll need to find a different way to detect seeks (or just write your own seek slider and replace the built in Youtube one.)
+  //   // Note that when you move the slider, you still get play, pause, buffer, and progress events, can you use those?
 
-    console.log(
-      "This never prints because seek decetion doesn't work: ",
-      seconds
-    );
-  };
+  //   console.log(
+  //     "This never prints because seek decetion doesn't work: ",
+  //     seconds
+  //   );
+  // };
 
   const handlePlay = () => {
     console.log(
@@ -111,7 +111,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
     console.log("Video buffer started");
     const currentTime = player.current?.getCurrentTime()
     console.log("debug", currentTime)
-    if (currentTime == undefined || currentTime < 0.01) {
+    if (currentTime === undefined || currentTime < 0.01) {
       // exception for the weird non-stop buffering at the start of the video
       console.log('buffering at the start of the video, not pausing')
     } else {

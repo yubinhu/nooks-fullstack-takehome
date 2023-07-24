@@ -48,7 +48,7 @@ const WatchSession: React.FC = () => {
     return () => {
       newSocket.disconnect();
     };
-  }, [sessionId, url]);
+  }, [sessionId, url, navigate]);
 
   if (!!url) {
     return (
