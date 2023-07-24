@@ -63,6 +63,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
 
   const handleWatchSession = () => {
     console.log("Starting watch session, emitting sync request");
+    console.log("debug", paused)
     socket.emit("sync-request", sessionId);
     setHasJoined(true);
   };
@@ -107,11 +108,24 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
   };
 
   const handleBuffer = () => {
+    console.log("Video buffer started");
+    const currentTime = player.current?.getCurrentTime()
+    console.log("debug", currentTime)
+    if (currentTime == undefined || currentTime < 0.01) {
+      // exception for the weird non-stop buffering at the start of the video
+      console.log('buffering at the start of the video, not pausing')
+    } else {
+      socket.emit("broadcast-pause", sessionId)
+      setPaused(true)
+      const pauseTime = player.current?.getCurrentTime()
+      setLastPause(pauseTime as number)
+    }
+    
+  };
+
+  const handleBufferEnd = () => {
     console.log("Video buffered");
-    const pauseTime = player.current?.getCurrentTime()
-    socket.emit("broadcast-pause", sessionId)
-    setPaused(true)
-    setLastPause(pauseTime as number)
+    setPaused(false)
   };
 
   const handleProgress = (state: {
@@ -156,7 +170,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
           onPlay={handlePlay}
           onPause={handlePause}
           onBuffer={handleBuffer}
-          onBufferEnd={handlePlay}
+          onBufferEnd={handleBufferEnd}
           onProgress={handleProgress}
           width="100%"
           height="100%"
