@@ -101,6 +101,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
 
   const handleBuffer = () => {
     console.log("Video buffered");
+    const pauseTime = player.current?.getCurrentTime()
+    socket.emit("broadcast-pause", sessionId)
+    setPaused(true)
+    setLastPause(pauseTime as number)
   };
 
   const handleProgress = (state: {
@@ -145,6 +149,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
           onPlay={handlePlay}
           onPause={handlePause}
           onBuffer={handleBuffer}
+          onBufferEnd={handlePlay}
           onProgress={handleProgress}
           width="100%"
           height="100%"
