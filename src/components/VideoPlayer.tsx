@@ -30,6 +30,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
     socket.on("sync-response", (seconds: number) => {
       console.log('sync response received. Current time: ', player.current?.getCurrentTime(), ' seek to: ', seconds, ' difference: ', Math.abs(player.current?.getCurrentTime() as number - seconds));
       player.current?.seekTo(seconds);
+      setPaused(false);
+    });
+
+    socket.on("sync-request", () => {
+      console.log('sync request received, pausing video');
+      setPaused(true);
+      socket.emit("sync-response", sessionId, player.current?.getCurrentTime() || 0)
     });
   
     socket.on("broadcast-pause", () => {
@@ -55,9 +62,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, socket, se
   };
 
   const handleWatchSession = () => {
-    setHasJoined(true);
-    // TODO: ask for a sync here
+    console.log("Starting watch session, emitting sync request");
     socket.emit("sync-request", sessionId);
+    setHasJoined(true);
   };
 
   const handleEnd = () => {

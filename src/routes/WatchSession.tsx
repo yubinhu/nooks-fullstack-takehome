@@ -39,8 +39,9 @@ const WatchSession: React.FC = () => {
       setStartTime(status);
     });
 
-    newSocket.on("change-video", (sessionId, newUrl) => {
+    newSocket.on("change-video", (newUrl) => {
       console.log("changing video to: ", newUrl);
+      setStartTime(0);
       setUrl(newUrl);
     });
 
@@ -98,7 +99,7 @@ const WatchSession: React.FC = () => {
             </Button>
           </Tooltip>
         </Box>
-        <VideoPlayer url={url} socket={socket as Socket} sessionId={sessionId as string} startTime={startTime}/>;
+        <VideoPlayer key={url} url={url} socket={socket as Socket} sessionId={sessionId as string} startTime={startTime}/>;
       </>
     );
   }
